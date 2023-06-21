@@ -85,6 +85,12 @@ app.get('/auth/:acc_data', async (req, res) => {
   const accData = req.params.acc_data;
   let authData = await db.collection('auth').get(accData);
 
+  // Caso as informações não tenham sido encontradas
+  if(!authData){
+    res.json({authorized: false}).end;
+    return;
+  }
+
   const allowLogin  = req.body.password == authData.props.password;
 
   const responseData = {
