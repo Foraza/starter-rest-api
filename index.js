@@ -97,7 +97,7 @@ app.get('/auth/:acc_data', async (req, res) => {
     return;
   }
 
-  const allowLogin  = req.params.password == authData.props.password;
+  const allowLogin  = req.query.password == authData.props.password;
 
   const responseData = {
     authorized: allowLogin,
