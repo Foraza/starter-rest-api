@@ -40,16 +40,34 @@ app.post('/transactions/:key', async (req, res) => {
 
   if(user){
     const name = user.name;
+
+    // Pega as transações atuais do usuário
+    let transactions = user.props.account.transactions;
+
+    /*
+    * Cria um novo objeto para a transação a ser inserida. Caso
+    * a conta onde a transação está sendo inserida seja a conta
+    * remetente, o valor fica negativo. Caso a conta seja a
+    * destinatária, o valor se mantem positivo
+    */
+    let newTransaction = {
+      "type": req.body.type,
+      "datetime": req.body.datetime,
+      "from": req.body.from,
+      "to": req.body.to,
+      "value": key == req.body.from ? -req.body.value : req.body.value,
+    }
+
+    transactions.push(req.body);
+
     let acc = {
       "type": "checking",
         "acc_num": user.props.account.acc_num,
         "agency": user.props.account.agency,
-        "balance": user.props.account.balance,
+        "balance": user.props.account.balance + newTransaction.value, 
         "acc_digit": user.props.account.acc_digit,
         "transactions": []
     }
-    let transactions = user.props.account.transactions;
-    transactions.push(req.body);
 
     acc.transactions = transactions;
 
@@ -58,6 +76,7 @@ app.post('/transactions/:key', async (req, res) => {
       "account": acc,
     }
 
+    // Adiciona o usuário com as informações atualizadas
     await db.collection('users').set(key, newUser);
 
     res.end('true');
