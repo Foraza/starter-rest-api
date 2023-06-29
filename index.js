@@ -83,7 +83,7 @@ app.post('/transactions/:key', async (req, res) => {
     return;
   }
 
-  res.end('false');
+  res.end('usuário não identificado');
 });
 
 // Fluxo de autenticação
