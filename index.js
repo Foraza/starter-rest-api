@@ -55,10 +55,10 @@ app.post('/transactions/:key', async (req, res) => {
       "datetime": req.body.datetime,
       "from": req.body.from,
       "to": req.body.to,
-      "value": key == req.body.from ? -req.body.value : req.body.value,
+      "value": key == req.body.from ? req.body.value * -1 : req.body.value,
     }
 
-    transactions.push(req.body);
+    transactions.push(newTransaction);
 
     let acc = {
       "type": "checking",
