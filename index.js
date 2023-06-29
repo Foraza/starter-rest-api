@@ -25,6 +25,48 @@ app.get('/users/:id', async (req, res) => {
   res.json(item).end();
 });
 
+app.get('/users', async (req, res) => {
+  const item = await db.collection('users').list();
+
+  res.json(item).end();
+});
+
+// Insere uma nova transação
+app.post('/transactions/:key', async (req, res) => {
+  let newUser;
+  const key = req.params.key;
+
+  const user = await db.collection('users').get(key);
+
+  if(user){
+    const name = user.name;
+    let acc = {
+      "type": "checking",
+        "acc_num": user.props.account.acc_num,
+        "agency": user.props.account.agency,
+        "balance": user.props.account.balance,
+        "acc_digit": user.props.account.acc_digit,
+        "transactions": []
+    }
+    let transactions = user.props.account.transactions;
+    transactions.push(req.body);
+
+    acc.transactions = transactions;
+
+    newUser = {
+      "name": name,
+      "account": acc,
+    }
+
+    await db.collection('users').set(key, newUser);
+
+    res.end('true');
+    return;
+  }
+
+  res.end('false');
+});
+
 // Fluxo de autenticação
 app.get('/auth/:acc_data', async (req, res) => {
   const accData = req.params.acc_data;
@@ -40,7 +82,6 @@ app.get('/auth/:acc_data', async (req, res) => {
 
   const responseData = {
     authorized: allowLogin,
-    user_id: allowLogin ? authData.props.user_id : null
   };
   console.log(responseData);
   res.json(responseData).end;
